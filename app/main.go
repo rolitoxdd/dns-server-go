@@ -34,13 +34,17 @@ func main() {
 			break
 		}
 
-		receivedData := string(buf[:size])
-		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
+		// receivedData := string(buf[:size])
+		receivedData, err := bufToHeader(buf[:size])
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Received %d bytes from %s\n", size, source)
+		receivedData.toBuf()
 
-		// Create an empty response
-		response := []byte{}
+		response := createResponse(receivedData)
 
-		_, err = udpConn.WriteToUDP(response, source)
+		_, err = udpConn.WriteToUDP(response.toBuf(), source)
 		if err != nil {
 			fmt.Println("Failed to send response:", err)
 		}
