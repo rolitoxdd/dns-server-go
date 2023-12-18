@@ -30,22 +30,43 @@ func BufToHeader(buf []byte) (Header, error) {
 	return header, nil
 }
 
-func BufToBody(buf []byte) (Question, error) {
+func BufToQuestion(buf []byte) (Question, error) {
 
-	body := Question{}
+	question := Question{}
 
 	var i int
 	for i = 0; i < len(buf); i++ {
 		// search for the null byte (that's the end of the Name)
 		if buf[i] == 0 { // 0x00 = 0000 0000
-			body.Name = buf[:i+1]
+			question.Name = buf[:i+1]
 			break
 		}
 	}
-	body.Type = binary.BigEndian.Uint16(buf[i+1 : i+3])
-	body.Class = binary.BigEndian.Uint16(buf[i+3 : i+5])
+	question.Type = binary.BigEndian.Uint16(buf[i+1 : i+3])
+	question.Class = binary.BigEndian.Uint16(buf[i+3 : i+5])
 
-	return body, nil
+	return question, nil
+}
+
+func BufToAnswer(buf []byte) (Answer, error) {
+
+	answer := Answer{}
+
+	var i int
+	for i = 0; i < len(buf); i++ {
+		// search for the null byte (that's the end of the Name)
+		if buf[i] == 0 { // 0x00 = 0000 0000
+			answer.Name = buf[:i+1]
+			break
+		}
+	}
+	answer.Type = binary.BigEndian.Uint16(buf[i+1 : i+3])
+	answer.Class = binary.BigEndian.Uint16(buf[i+3 : i+5])
+	answer.TTL = binary.BigEndian.Uint32(buf[i+5 : i+9])
+	answer.RDLENGTH = binary.BigEndian.Uint16(buf[i+9 : i+11])
+	answer.RDATA = buf[i+11 : i+11+int(answer.RDLENGTH)]
+
+	return answer, nil
 }
 
 func BufToMessage(buf []byte) (Message, error) {
@@ -55,13 +76,13 @@ func BufToMessage(buf []byte) (Message, error) {
 		return Message{}, err
 	}
 
-	body, err := BufToBody(buf[12:])
+	body, err := BufToQuestion(buf[12:])
 	if err != nil {
 		return Message{}, err
 	}
 
 	return Message{
-		Header: header,
-		Body:   body,
+		Header:   header,
+		Question: body,
 	}, nil
 }

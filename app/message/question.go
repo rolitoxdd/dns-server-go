@@ -1,7 +1,8 @@
 package message
 
 type Question struct {
-	// The body section is variable length. It contains the questions, answers, authority records, and additional records.
+	// The question section contains a list of questions (usually just 1) that the sender wants to ask the receiver. This section is present in both query and reply packets.
+	// Each question has the following structure:
 
 	Name []byte // Domain Name -  A domain name, represented as a sequence of "labels" (variable length)
 
