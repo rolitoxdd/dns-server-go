@@ -2,7 +2,7 @@ package message
 
 type Message struct {
 	Header Header
-	Body   Body
+	Body   Question
 }
 
 func (x Message) ToBuf() []byte {

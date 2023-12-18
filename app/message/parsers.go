@@ -30,9 +30,9 @@ func BufToHeader(buf []byte) (Header, error) {
 	return header, nil
 }
 
-func BufToBody(buf []byte) (Body, error) {
+func BufToBody(buf []byte) (Question, error) {
 
-	body := Body{}
+	body := Question{}
 
 	var i int
 	for i = 0; i < len(buf); i++ {

@@ -21,7 +21,7 @@ func createResponse(request m.Message) m.Message {
 	}
 
 	// function that creates a response Body from a request Body
-	body := m.Body{
+	body := m.Question{
 		Name:  request.Body.Name,
 		Type:  request.Body.Type,
 		Class: request.Body.Class,
