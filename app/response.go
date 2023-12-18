@@ -3,6 +3,10 @@ package main
 import m "github.com/codecrafters-io/dns-server-starter-go/app/message"
 
 func createResponse(request m.Message) m.Message {
+	RCODE := 4
+	if request.Header.OPCODE == 0 {
+		RCODE = 0
+	}
 	// function that creates a response Header from a request Header
 	header := m.Header{
 		ID:      request.Header.ID,
@@ -13,7 +17,7 @@ func createResponse(request m.Message) m.Message {
 		RD:      request.Header.RD,
 		RA:      false,
 		Z:       0,
-		RCODE:   0,
+		RCODE:   byte(RCODE),
 		QDCOUNT: request.Header.QDCOUNT,
 		ANCOUNT: request.Header.ANCOUNT + 1,
 		NSCOUNT: 0,
