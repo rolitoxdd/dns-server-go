@@ -1,4 +1,4 @@
-package main
+package message
 
 type Header struct {
 	// The header section is always 12 bytes long. Integers are encoded in big-endian format.
@@ -25,7 +25,7 @@ type Header struct {
 
 }
 
-func (x Header) toBuf() []byte {
+func (x Header) ToBuf() []byte {
 	// function that converts the header to a byte slice.
 	buf := make([]byte, 12)
 

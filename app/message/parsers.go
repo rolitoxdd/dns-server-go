@@ -1,11 +1,11 @@
-package main
+package message
 
 import (
 	"encoding/binary"
 	"errors"
 )
 
-func bufToHeader(buf []byte) (Header, error) {
+func BufToHeader(buf []byte) (Header, error) {
 
 	if len(buf) < 12 {
 		return Header{}, errors.New("Header too short")
@@ -28,4 +28,40 @@ func bufToHeader(buf []byte) (Header, error) {
 	}
 
 	return header, nil
+}
+
+func BufToBody(buf []byte) (Body, error) {
+
+	body := Body{}
+
+	var i int
+	for i = 0; i < len(buf); i++ {
+		// search for the null byte (that's the end of the Name)
+		if buf[i] == 0 { // 0x00 = 0000 0000
+			body.Name = buf[:i+1]
+			break
+		}
+	}
+	body.Type = binary.BigEndian.Uint16(buf[i+1 : i+3])
+	body.Class = binary.BigEndian.Uint16(buf[i+3 : i+5])
+
+	return body, nil
+}
+
+func BufToMessage(buf []byte) (Message, error) {
+
+	header, err := BufToHeader(buf)
+	if err != nil {
+		return Message{}, err
+	}
+
+	body, err := BufToBody(buf[12:])
+	if err != nil {
+		return Message{}, err
+	}
+
+	return Message{
+		Header: header,
+		Body:   body,
+	}, nil
 }
