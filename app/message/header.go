@@ -1,7 +1,7 @@
 package message
 
+// The header section is always 12 bytes long. Integers are encoded in big-endian format.
 type Header struct {
-	// The header section is always 12 bytes long. Integers are encoded in big-endian format.
 
 	ID uint16 // Packet Identifier - A random ID assigned to query packets. Response packets must reply with the same ID. (16 bits)
 
@@ -25,8 +25,8 @@ type Header struct {
 
 }
 
+// function that converts the header to a byte slice.
 func (x Header) ToBuf() []byte {
-	// function that converts the header to a byte slice.
 	buf := make([]byte, 12)
 
 	// bits 0 - 16

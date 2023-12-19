@@ -69,6 +69,7 @@ func BufToAnswer(buf []byte) (Answer, error) {
 	return answer, nil
 }
 
+// function that converts a byte slice to a Message
 func BufToMessage(buf []byte) (Message, error) {
 
 	header, err := BufToHeader(buf)

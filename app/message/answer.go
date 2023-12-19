@@ -1,9 +1,8 @@
 package message
 
+// The answer section contains a list of RRs (Resource Records), which are answers to the questions asked in the question section.
+// Each RR has the following structure:
 type Answer struct {
-	// The answer section contains a list of RRs (Resource Records), which are answers to the questions asked in the question section.
-	// Each RR has the following structure:
-
 	Name []byte // Domain Name -  A domain name, represented as a sequence of "labels" (variable length)
 
 	Type uint16 // Type - the type of record (1 for an A record, 5 for a CNAME record etc., full list: https://www.rfc-editor.org/rfc/rfc1035#section-3.2.2) (16 bits)
