@@ -30,15 +30,27 @@ func BufToHeader(buf []byte) (Header, error) {
 	return header, nil
 }
 
-func BufToQuestion(buf []byte) (Question, error) {
+func BufToQuestion(buf []byte, start int) (Question, error) {
 
 	question := Question{}
 
 	var i int
-	for i = 0; i < len(buf); i++ {
+	for i = start; i < start+len(buf[start:]); i++ {
 		// search for the null byte (that's the end of the Name)
 		if buf[i] == 0 { // 0x00 = 0000 0000
-			question.Name = buf[:i+1]
+			question.Name = buf[start : i+1]
+			break
+		}
+		if buf[i]&0xC0 == 0xC0 { // 0xC0 = 1100 0000
+			// if the first two bits are 11, then the next 14 bits are an offset to the real location of the Name
+			// the real location of the Name is the offset concatenated with the rest of the buffer
+			// the offset is the last 14 bits of the first byte concatenated with the second byte
+			offset := binary.BigEndian.Uint16([]byte{buf[i], buf[i+1]}) & 0x3FFF // 0x3FFF = 0011 1111 1111 1111
+			r_question, err := BufToQuestion(buf, int(offset))
+			if err != nil {
+				panic(err)
+			}
+			question.Name = append(buf[start:i], r_question.Name...)
 			break
 		}
 	}
@@ -46,6 +58,24 @@ func BufToQuestion(buf []byte) (Question, error) {
 	question.Class = binary.BigEndian.Uint16(buf[i+3 : i+5])
 
 	return question, nil
+}
+
+func BufToQuestions(header Header, buf []byte) ([]Question, error) {
+
+	questions := make([]Question, 0)
+	start := 12
+	for i := 0; i < int(header.QDCOUNT); i++ {
+		question, err := BufToQuestion(buf, start)
+		if err != nil {
+			return nil, err
+		}
+		questions = append(questions, question)
+		if start <= len(buf) {
+			start += len(question.Name) + 4
+		}
+	}
+
+	return questions, nil
 }
 
 func BufToAnswer(buf []byte) (Answer, error) {
@@ -77,13 +107,13 @@ func BufToMessage(buf []byte) (Message, error) {
 		return Message{}, err
 	}
 
-	body, err := BufToQuestion(buf[12:])
+	questions, err := BufToQuestions(header, buf)
 	if err != nil {
 		return Message{}, err
 	}
 
 	return Message{
-		Header:   header,
-		Question: body,
+		Header:    header,
+		Questions: questions,
 	}, nil
 }

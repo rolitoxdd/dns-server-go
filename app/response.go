@@ -19,33 +19,39 @@ func createResponse(request m.Message) m.Message {
 		Z:       0,
 		RCODE:   byte(RCODE),
 		QDCOUNT: request.Header.QDCOUNT,
-		ANCOUNT: request.Header.ANCOUNT + 1,
+		ANCOUNT: request.Header.QDCOUNT,
 		NSCOUNT: 0,
 		ARCOUNT: 0,
 	}
 
 	// function that creates a response Question from a request Question
-	question := m.Question{
-		Name:  request.Question.Name,
-		Type:  request.Question.Type,
-		Class: request.Question.Class,
+	questions := make([]m.Question, 0)
+	for _, question := range request.Questions {
+		questions = append(questions, m.Question{
+			Name:  question.Name,
+			Type:  question.Type,
+			Class: question.Class,
+		})
 	}
 
 	// function that creates a response Answer from a request Answer
-	answer := m.Answer{
-		Name:     request.Question.Name,
-		Type:     request.Question.Type,
-		Class:    request.Question.Class,
-		TTL:      60,
-		RDLENGTH: 4,
-		RDATA:    []byte{8, 8, 8, 8},
+	answers := make([]m.Answer, 0)
+	for _, question := range request.Questions {
+		answers = append(answers, m.Answer{
+			Name:     question.Name,
+			Type:     question.Type,
+			Class:    question.Class,
+			TTL:      60,
+			RDLENGTH: 4,
+			RDATA:    []byte{8, 8, 8, 8},
+		})
 	}
 
 	// function that creates a response Message from a request Message
 	response := m.Message{
-		Header:   header,
-		Question: question,
-		Answer:   answer,
+		Header:    header,
+		Questions: questions,
+		Answers:   answers,
 	}
 
 	return response
